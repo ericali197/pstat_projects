@@ -1,0 +1,42 @@
+---
+title: "PSTAT175 Project"
+author: "Qianyi Li"
+date: "10/31/2016"
+output: pdf_document
+---
+
+```{r}
+require(survival)
+#https://vincentarelbundock.github.io/Rdatasets/doc/MASS/Aids2.html
+```
+
+### Read in Aids2 data
+```{r}
+Aids2 <- read.csv(file="/Users/ericali/Downloads/Aids2.csv", header=TRUE, sep = ',')
+Aids2$time <- Aids2$death - Aids2$diag
+Aids2$status <- as.factor(Aids2$status)
+levels(Aids2$status) <- c('0','1')
+Aids2$sex <- as.factor(Aids2$sex)
+levels(Aids2$sex) <- c('Female','Male')
+aids2 <- survfit(Surv(Aids2$time, as.numeric(Aids2$status)) ~ 1)
+plot(aids2)
+```
+
+### cox PH one variable models
+```{r}
+fit1.1 <- coxph(Surv(Aids2$time, as.numeric(Aids2$status)) ~ Aids2$state)
+fit1.2 <- coxph(Surv(Aids2$time, as.numeric(Aids2$status)) ~ Aids2$sex)
+fit1.3 <- coxph(Surv(Aids2$time, as.numeric(Aids2$status)) ~ Aids2$T.categ)
+fit1.4 <- coxph(Surv(Aids2$time, as.numeric(Aids2$status)) ~ Aids2$age)
+```
+
+# KM estimate model
+```{r}
+fit.sex <- survfit(Surv(Aids2$time, as.numeric(Aids2$status)) ~ Aids2$sex)
+plot(fit.sex, conf.int = FALSE, xlab = "Time", ylab = "Survival Probability", col=c(3,2))
+legend(1600, 0.8, c("Female", "Male"), fill = c(3,2))
+
+fit.state <- survfit(Surv(Aids2$time, as.numeric(Aids2$status)) ~ Aids2$state)
+plot(fit.state, conf.int = FALSE, xlab = "Time", ylab = "Survival Probability", col=c(3,2,1))
+
+```
